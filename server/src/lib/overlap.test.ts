@@ -7,4 +7,8 @@ describe("overlaps", () => {
   it("detects a partial overlap", () => {
     expect(overlaps(t("10:00"), t("11:00"), t("10:30"), t("11:30"))).toBe(true);
   });
+
+  it("allows back-to-back bookings", () => {
+    expect(overlaps(t("10:00"), t("11:00"), t("11:00"), t("11:30"))).toBe(false);
+  });
 });

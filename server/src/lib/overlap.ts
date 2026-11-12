@@ -4,5 +4,5 @@ export function overlaps(
   bStart: Date,
   bEnd: Date,
 ): boolean {
-  return aStart < bEnd && bStart < aEnd;
+     return aStart < bEnd && bStart < aEnd;
 }
