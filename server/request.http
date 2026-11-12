@@ -1,0 +1,57 @@
+### 1. Valid booking (expect 201)
+POST http://localhost:3000/bookings
+Content-Type: application/json
+
+{
+  "serviceId": 1,
+  "customerName": "Sam",
+  "customerEmail": "sam@example.com",
+  "startsAt": "2026-12-01T15:00:00.000Z"
+}
+
+### 2. Same slot again (expect 409)
+POST http://localhost:3000/bookings
+Content-Type: application/json
+
+{
+  "serviceId": 1,
+  "customerName": "Alex",
+  "customerEmail": "alex@example.com",
+  "startsAt": "2026-12-01T15:00:00.000Z"
+}
+
+### 3. Overlaps the first booking (expect 409)
+POST http://localhost:3000/bookings
+Content-Type: application/json
+
+{
+  "serviceId": 2,
+  "customerName": "Alex",
+  "customerEmail": "alex@example.com",
+  "startsAt": "2026-12-01T15:30:00.000Z"
+}
+
+### 4. In the past (expect 400)
+POST http://localhost:3000/bookings
+Content-Type: application/json
+
+{
+  "serviceId": 1,
+  "customerName": "Sam",
+  "customerEmail": "sam@example.com",
+  "startsAt": "2020-01-01T10:00:00.000Z"
+}
+
+### 5. Service that doesn't exist (expect 404)
+POST http://localhost:3000/bookings
+Content-Type: application/json
+
+{
+  "serviceId": 99,
+  "customerName": "Sam",
+  "customerEmail": "sam@example.com",
+  "startsAt": "2026-12-05T10:00:00.000Z"
+}
+
+### 6. List Sam's bookings (expect 200)
+GET http://localhost:3000/bookings?email=sam@example.com
