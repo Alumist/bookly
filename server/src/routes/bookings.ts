@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createBookingSchema } from "../lib/schemas.js";
-import { createBooking, listBookingsByEmail } from "../lib/bookingService.js";
+import { createBooking, listBookingsByEmail, cancelBooking } from "../lib/bookingService.js";
 import { z } from 'zod'
 
 export const bookingsRouter = Router();
@@ -17,4 +17,10 @@ bookingsRouter.get("/", async (req, res) => {
   const { email } = z.object({ email: z.email() }).parse(req.query);
   const bookings = await listBookingsByEmail(email);
   res.json(bookings);
+});
+
+bookingsRouter.patch("/:id/cancel", async (req, res) => {
+  const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
+  const booking = await cancelBooking(id);
+  res.json(booking);
 });

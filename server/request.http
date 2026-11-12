@@ -53,5 +53,13 @@ Content-Type: application/json
   "startsAt": "2026-12-05T10:00:00.000Z"
 }
 
-### 6. List Sam's bookings (expect 200)
-GET http://localhost:3000/bookings?email=sam@example.com
+### Create a booking first (test 1), then:
+
+### Cancel it (expect 200)
+PATCH http://localhost:3000/bookings/1/cancel
+
+### Cancel it again (expect 400)
+PATCH http://localhost:3000/bookings/1/cancel
+
+### Doesn't exist (expect 404)
+PATCH http://localhost:3000/bookings/999/cancel

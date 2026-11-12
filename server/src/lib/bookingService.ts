@@ -45,9 +45,19 @@ export async function listBookingsByEmail(email: string) {
 }
 
 export async function cancelBooking(id: number) {
-  // another new function
+  const booking = await prisma.booking.findUnique({
+    where: { id:id }
+  });
+  if ( !booking ) throw new AppError(404, "Booking Not Found");
+  if (booking.status === "CANCELLED" ) throw new AppError(400, "Booking is Already Cancelled");
+
+  return prisma.booking.update({
+    where: {id:id},
+    data: { status: "CANCELLED"},
+  })
 }
 
 export async function getAvailability(serviceId: number, date: string) {
   // another new function (we'll do this one last)
 }
+
