@@ -2,6 +2,10 @@ import { string } from "zod";
 import { prisma } from "./db.js";
 import { AppError } from "./errors.js";
 import type { CreateBookingInput } from "./schemas.js";
+import { overlaps } from "./overlap.js";
+import { generateSlots } from "./slots.js";
+const OPEN_HOUR = 9;
+const CLOSE_HOUR = 17;
 
 export async function createBooking(input: CreateBookingInput) {
   const service = await prisma.service.findUnique({
@@ -58,6 +62,38 @@ export async function cancelBooking(id: number) {
 }
 
 export async function getAvailability(serviceId: number, date: string) {
-  // another new function (we'll do this one last)
+  const service = await prisma.service.findUnique({
+    where: { id: serviceId },
+  });
+  if (!service) throw new AppError(404, "Service not found");
+
+  const dayStart = new Date(`${date}T00:00:00.000Z`);
+  if (Number.isNaN(dayStart.getTime())) {
+    throw new AppError(400, "Invalid date");
+  }
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60_000);
+
+  const slots = generateSlots(date, OPEN_HOUR, CLOSE_HOUR, service.durationMin);
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      status: "CONFIRMED",
+      startsAt: { lt: dayEnd },
+      endsAt: { gt: dayStart },
+    },
+  });
+
+  const now = new Date();
+  const durationMs = service.durationMin * 60_000;
+
+  return slots
+    .filter((slotStart) => {
+      if (slotStart < now) return false;
+      const slotEnd = new Date(slotStart.getTime() + durationMs);
+      return !bookings.some((b) =>
+        overlaps(slotStart, slotEnd, b.startsAt, b.endsAt),
+      );
+    })
+    .map((slot) => slot.toISOString());
 }
 

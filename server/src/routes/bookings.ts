@@ -9,7 +9,7 @@ bookingsRouter.post("/", async (req, res) => {
   const input = createBookingSchema.parse(req.body);
   // the real booking logic arrives in Class 5
   const booking = await createBooking(input);
-  res.status(201).json({ received: input });
+res.status(201).json(booking);
 });
 
 bookingsRouter.get("/", async (req, res) => {
